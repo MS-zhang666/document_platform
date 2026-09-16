@@ -95,6 +95,7 @@ class JobService:
         job_id = uuid4().hex
 
         fields = {
+            # 不能有job_id了，不然会和set_job_state中产生冲突
             "document_id": (document_id),
             "status": "queued",
             "progress": "0",
