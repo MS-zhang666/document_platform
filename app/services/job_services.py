@@ -217,8 +217,11 @@ class JobService:
         arq_job = Job(
             job_id=job_id,
             redis=self.arq,
-        )  # `arq.jobs.Job` 是 arq 的**任务操作对象**，根据已知的`job_id`，重新在代码里拼装出一个任务对象，不需要重新入队。
-        # 前面`enqueue_job(..., _job_id=job_id)`，就是让 arq 内部任务 ID = 业务 job_id，所以这里可以直接拿这个 id 构造 Job
+        )
+        """ arq.jobs.Job 是 arq 的任务操作对象，根据已知的job_id，
+        重新在代码里拼装出一个任务对象，不需要重新入队;
+        前面`enqueue_job(..., _job_id=job_id)`,
+        就是让 arq 内部任务 ID = 业务 job_id，所以这里可以直接拿这个 id 构造 Job"""
 
         try:
             await arq_job.abort(

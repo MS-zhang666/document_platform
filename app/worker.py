@@ -7,6 +7,9 @@ from datetime import (
 from pathlib import Path
 from typing import Optional
 
+from arq import Retry
+from redis.asyncio import Redis
+
 from app.config import (
     get_settings,
 )
@@ -31,8 +34,6 @@ from app.task_state import (
     get_job_state,
     set_job_state,
 )
-from arq import Retry
-from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)
 
@@ -84,9 +85,7 @@ async def cancel_requested(
     if state is None:
         return False
 
-    return (
-        state.get("cancel_requested") == "1"
-    )  # 协作式取消的检查点，代码中多处调用这个函数
+    return state.get("cancel_requested") == "1"  # 协作式取消的检查点，代码中多处调用这个函数
 
 
 async def mark_document_status(
@@ -158,9 +157,7 @@ async def parse_document_job(
     document_id: str,
 ) -> dict:
 
-    redis: Redis = ctx[
-        "state_redis"
-    ]  # 取出在 worker 启动阶段预先存放的 state_redis 连接实例
+    redis: Redis = ctx["state_redis"]  # 取出在 worker 启动阶段预先存放的 state_redis 连接实例
 
     attempt = int(
         ctx.get("job_try") or 1
@@ -236,7 +233,8 @@ async def parse_document_job(
             redis,
             job_id,
         ):
-            raise UserCancelledError()  # 协作式取消，抛出异常，交给外层捕获处理,因为后续的parse_document_file调用了该回调函数
+            raise UserCancelledError()
+        # 协作式取消，抛出异常，交给外层捕获处理,因为后续的parse_document_file调用了该回调函数
 
         await set_job_state(
             redis,
@@ -341,9 +339,7 @@ async def parse_document_job(
     # Arq abort / Worker shutdown
     # ========================================================
 
-    except (
-        asyncio.CancelledError
-    ):  # `arq.jobs.Job.abort()` 或 Worker shutdown 导致的取消异常
+    except asyncio.CancelledError:  # `arq.jobs.Job.abort()` 或 Worker shutdown 导致的取消异常
         # 如果确实是用户请求取消，
         # 就作为正常Cancelled状态结束。
         if await cancel_requested(

@@ -1,4 +1,5 @@
 import pytest
+
 from app.parser import (
     parse_document_file,
 )

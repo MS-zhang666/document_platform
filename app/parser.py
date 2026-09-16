@@ -1,10 +1,8 @@
 import asyncio
-from collections.abc import (
-    Awaitable,
-    Callable,
-)
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 import aiofiles
 from pypdf import PdfReader
@@ -13,8 +11,6 @@ ProgressCallback = Callable[
     [int, str],
     Awaitable[None],
 ]  # 声明类型, 强制使用者必须传 async 函数，防止写出 `await 普通值` 这种运行时错误。
-
-from typing import Optional
 
 
 class UnsupportedDocumentError(Exception):
