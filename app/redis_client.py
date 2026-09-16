@@ -1,9 +1,5 @@
 from typing import Annotated
 
-from app.config import (
-    Settings,
-    get_settings,
-)
 from arq import create_pool
 from arq.connections import (
     ArqRedis,
@@ -11,6 +7,11 @@ from arq.connections import (
 )
 from fastapi import Depends, Request
 from redis.asyncio import Redis
+
+from app.config import (
+    Settings,
+    get_settings,
+)
 
 
 def build_arq_redis_settings(
@@ -42,7 +43,7 @@ async def create_arq_redis(
 
     return await create_pool(
         build_arq_redis_settings(settings)
-    )  # 创建 Arq 任务队列连接池。 `create_pool()` 内部会立刻连接 Redis，属于网络 IO，必须 `async/await`。
+    )  # 创建Arq任务队列连接池create_pool() 内部会立刻连接 Redis，属于网络 IO，必须 async/await。
 
 
 # 在 `lifespan`（main.py）建立与示例构建的关联

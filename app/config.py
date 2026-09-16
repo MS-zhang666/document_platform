@@ -25,9 +25,7 @@ class Settings(BaseSettings):
     # PostgreSQL
     # ========================================================
 
-    database_url: str = (
-        "postgresql+asyncpg://docuser:docpass@localhost:5432/docplatform"
-    )
+    database_url: str = "postgresql+asyncpg://docuser:docpass@localhost:5432/docplatform"
 
     # ========================================================
     # Redis
